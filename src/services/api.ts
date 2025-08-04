@@ -2,6 +2,7 @@ import { SearchSource, SearchResult } from '../types';
 
 const SERPER_API_KEY = import.meta.env.VITE_SERPER_API_KEY;
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+const OPENAI_BASE_URL = import.meta.env.VITE_OPENAI_BASE_URL;
 
 export async function searchSerper(query: string, source: SearchSource): Promise<SearchResult[]> {
   const endpoint = `https://google.serper.dev/${source}`;
@@ -97,7 +98,8 @@ Follow this structure:
 
 ${prompts[source]}`;
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const baseUrl = OPENAI_BASE_URL || 'https://api.openai.com';
+  const response = await fetch(`${baseUrl}/v1/chat/completions`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${OPENAI_API_KEY}`,
