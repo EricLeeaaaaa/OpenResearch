@@ -1,8 +1,9 @@
 import { SearchSource, SearchResult } from '../types';
 
-const SERPER_API_KEY = import.meta.env.VITE_SERPER_API_KEY;
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 const OPENAI_BASE_URL = import.meta.env.VITE_OPENAI_BASE_URL;
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+const OPENAI_MODEL = import.meta.env.VITE_OPENAI_MODEL;
+const SERPER_API_KEY = import.meta.env.VITE_SERPER_API_KEY;
 
 export async function searchSerper(query: string, source: SearchSource): Promise<SearchResult[]> {
   const endpoint = `https://google.serper.dev/${source}`;
@@ -98,15 +99,15 @@ Follow this structure:
 
 ${prompts[source]}`;
 
-  const baseUrl = OPENAI_BASE_URL || 'https://api.openai.com';
-  const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+  const baseUrl = OPENAI_BASE_URL || 'https://api.openai.com/v1';
+  const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${OPENAI_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: OPENAI_MODEL || 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },

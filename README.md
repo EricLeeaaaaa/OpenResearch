@@ -58,8 +58,9 @@ npm run dev
 ### Environment Setup
 Configure your environment variables by creating a `.env` file in the root directory:
 ```env
-VITE_OPENAI_BASE_URL=your_openai_base_url
+VITE_OPENAI_BASE_URL=your_openai_base_url # Should end with /v1
 VITE_OPENAI_API_KEY=your_openai_api_key
+VITE_OPENAI_MODEL=your_openai_model
 VITE_SERPER_API_KEY=your_serper_api_key
 ```
 
