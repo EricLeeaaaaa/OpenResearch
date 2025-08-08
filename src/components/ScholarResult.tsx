@@ -1,8 +1,8 @@
-import React from 'react';
-import { SearchResult } from '../../types';
+import { memo } from 'react';
+import type { SearchResult } from '../types';
 import { BookOpen, Users } from 'lucide-react';
 
-export function ScholarResult({ result }: { result: SearchResult }) {
+export const ScholarResult = memo(function ScholarResult({ result }: { result: SearchResult }) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
       <a href={result.link} target="_blank" rel="noopener noreferrer" className="block">
@@ -32,4 +32,4 @@ export function ScholarResult({ result }: { result: SearchResult }) {
       </a>
     </div>
   );
-}
+});

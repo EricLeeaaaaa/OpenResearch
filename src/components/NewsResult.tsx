@@ -1,13 +1,13 @@
-import React from 'react';
-import { SearchResult } from '../../types';
+import { memo } from 'react';
+import type { SearchResult } from '../types';
 
-export function NewsResult({ result }: { result: SearchResult }) {
+export const NewsResult = memo(function NewsResult({ result }: { result: SearchResult }) {
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex">
       {result.imageUrl && (
         <div className="w-48 flex-shrink-0">
-          <img 
-            src={result.imageUrl} 
+          <img
+            src={result.imageUrl}
             alt={result.title}
             className="w-full h-full object-cover"
             loading="lazy"
@@ -24,4 +24,4 @@ export function NewsResult({ result }: { result: SearchResult }) {
       </div>
     </div>
   );
-}
+});

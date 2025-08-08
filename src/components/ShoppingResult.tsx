@@ -1,15 +1,15 @@
-import React from 'react';
-import { SearchResult } from '../../types';
+import { memo } from 'react';
+import type { SearchResult } from '../types';
 import { Star } from 'lucide-react';
 
-export function ShoppingResult({ result }: { result: SearchResult }) {
+export const ShoppingResult = memo(function ShoppingResult({ result }: { result: SearchResult }) {
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       <a href={result.link} target="_blank" rel="noopener noreferrer" className="block">
         {result.imageUrl && (
           <div className="aspect-square overflow-hidden">
-            <img 
-              src={result.imageUrl} 
+            <img
+              src={result.imageUrl}
               alt={result.title}
               className="w-full h-full object-contain p-4"
               loading="lazy"
@@ -35,4 +35,4 @@ export function ShoppingResult({ result }: { result: SearchResult }) {
       </a>
     </div>
   );
-}
+});

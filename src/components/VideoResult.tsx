@@ -1,22 +1,22 @@
-import React from 'react';
-import { SearchResult } from '../../types';
-import { Play, Eye, User, Video } from 'lucide-react';
+import { memo } from 'react';
+import type { SearchResult } from '../types';
+import { Play, Eye, User, Video as VideoIcon } from 'lucide-react';
 
-export function VideoResult({ result }: { result: SearchResult }) {
+export const VideoResult = memo(function VideoResult({ result }: { result: SearchResult }) {
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
       <a href={result.link} target="_blank" rel="noopener noreferrer" className="block flex-grow">
         <div className="relative aspect-video">
           {result.thumbnail ? (
-            <img 
-              src={result.thumbnail} 
+            <img
+              src={result.thumbnail}
               alt={result.title}
               className="w-full h-full object-cover"
               loading="lazy"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-[#1877F2] to-[#0C4A9E] flex items-center justify-center">
-              <Video className="w-12 h-12 text-white/80" />
+              <VideoIcon className="w-12 h-12 text-white/80" />
             </div>
           )}
           {result.duration && (
@@ -48,4 +48,4 @@ export function VideoResult({ result }: { result: SearchResult }) {
       </a>
     </div>
   );
-}
+});

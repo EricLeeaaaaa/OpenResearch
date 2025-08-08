@@ -1,4 +1,3 @@
-import React from 'react';
 import { Search } from 'lucide-react';
 
 interface SearchBarProps {
@@ -15,7 +14,7 @@ export function SearchBar({ query, onQueryChange, onSearch, isLoading }: SearchB
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full">
+    <form onSubmit={handleSubmit} className="w-full" role="search" aria-label="Site search">
       <div className="relative">
         <input
           type="text"
@@ -24,11 +23,17 @@ export function SearchBar({ query, onQueryChange, onSearch, isLoading }: SearchB
           placeholder="What would you like to know?"
           className="w-full px-6 py-4 text-lg rounded-full border border-gray-300 focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/20 transition-all pr-14 bg-white shadow-sm hover:shadow-md"
           disabled={isLoading}
+          aria-disabled={isLoading}
+          aria-label="Search input"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
         />
         <button
           type="submit"
           disabled={isLoading}
           className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 text-[#1877F2] hover:bg-[#1877F2]/10 rounded-full transition-colors"
+          aria-label="Submit search"
         >
           <Search className="w-6 h-6" />
         </button>

@@ -1,7 +1,13 @@
 import { SearchSource, SearchResult } from '../types';
 import { getRequiredKeysOrThrow, loadKeys } from '../lib/keyStore';
 
-export async function searchSerper(query: string, source: SearchSource): Promise<SearchResult[]> {
+type FetchOptions = { signal?: AbortSignal };
+
+export async function searchSerper(
+  query: string,
+  source: SearchSource,
+  options?: FetchOptions
+): Promise<SearchResult[]> {
   const { serperApiKey } = getRequiredKeysOrThrow(source);
 
   const endpoint = `https://google.serper.dev/${source}`;
@@ -16,6 +22,7 @@ export async function searchSerper(query: string, source: SearchSource): Promise
       gl: 'us',
       hl: 'en',
     }),
+    signal: options?.signal,
   });
 
   if (!response.ok) {
@@ -27,10 +34,15 @@ export async function searchSerper(query: string, source: SearchSource): Promise
   return formatResults(data, source);
 }
 
-export async function generateAIResponse(query: string, results: SearchResult[], source: SearchSource): Promise<string> {
+export async function generateAIResponse(
+  query: string,
+  results: SearchResult[],
+  source: SearchSource,
+  options?: FetchOptions
+): Promise<string> {
   const { openaiApiKey } = getRequiredKeysOrThrow(source);
   const { openaiBaseUrl, openaiModel } = loadKeys();
-  const baseUrl = (openaiBaseUrl?.trim() || 'https://api.openai.com/v1').replace(/\/+$/, '');
+  const baseUrl = (openaiBaseUrl?.trim() || 'https://api.openai.com/v1').replace(///+$/, '');
   const model = openaiModel?.trim() || 'gpt-4o-mini';
 
   const prompts = {
@@ -83,16 +95,16 @@ export async function generateAIResponse(query: string, results: SearchResult[],
   } as const;
 
   const systemPrompt = `You are an expert research assistant that creates well-formatted markdown summaries. Format with proper markdown:
-    - **Bold** for emphasis
-    - *Italic* for terminology
-    - > Blockquotes for important quotes
-    - 
+- **Bold** for emphasis
+- *Italic* for terminology
+- > Blockquotes for important quotes
+- 
 code
  for technical terms
-    - Lists (- or 1.) for multiple points
-    Include relevant statistics and cite sources using [text](url) format.`;
+- Lists (- or 1.) for multiple points
+Include relevant statistics and cite sources using [text](url) format.`;
 
-  const userPrompt = `Create a ${source} analysis for "${query}" using these results: ${JSON.stringify(results)}. 
+  const userPrompt = `Create a ${source} analysis for "${query}" using these results: ${JSON.stringify(results)}.
 Follow this structure:
 
 ${prompts[source]}`;
@@ -100,7 +112,7 @@ ${prompts[source]}`;
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${openaiApiKey}`,
+      Authorization: `Bearer ${openaiApiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -112,6 +124,7 @@ ${prompts[source]}`;
       max_tokens: 4000,
       temperature: 0.7,
     }),
+    signal: options?.signal,
   });
 
   if (!response.ok) {

@@ -1,7 +1,7 @@
-import React from 'react';
-import { SearchResult } from '../../types';
+import { memo } from 'react';
+import type { SearchResult } from '../types';
 
-export function WebResult({ result }: { result: SearchResult }) {
+export const WebResult = memo(function WebResult({ result }: { result: SearchResult }) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
       <a href={result.link} target="_blank" rel="noopener noreferrer" className="block">
@@ -15,4 +15,4 @@ export function WebResult({ result }: { result: SearchResult }) {
       </a>
     </div>
   );
-}
+});

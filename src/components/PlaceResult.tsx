@@ -1,8 +1,8 @@
-import React from 'react';
-import { SearchResult } from '../../types';
+import { memo } from 'react';
+import type { SearchResult } from '../types';
 import { MapPin, Star } from 'lucide-react';
 
-export function PlaceResult({ result }: { result: SearchResult }) {
+export const PlaceResult = memo(function PlaceResult({ result }: { result: SearchResult }) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
       <a href={result.link} target="_blank" rel="noopener noreferrer" className="block">
@@ -31,4 +31,4 @@ export function PlaceResult({ result }: { result: SearchResult }) {
       </a>
     </div>
   );
-}
+});

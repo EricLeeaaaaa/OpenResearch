@@ -1,11 +1,11 @@
-export type SearchSource = 
-  | 'search' 
-  | 'images' 
-  | 'videos' 
-  | 'places' 
-  | 'news' 
-  | 'shopping' 
-  | 'scholar' 
+export type SearchSource =
+  | 'search'
+  | 'images'
+  | 'videos'
+  | 'places'
+  | 'news'
+  | 'shopping'
+  | 'scholar'
   | 'patents';
 
 export interface SearchResult {
