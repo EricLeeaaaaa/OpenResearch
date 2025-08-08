@@ -31,7 +31,7 @@ Check out the live website: Open-Research.ai
 ## Quick Deployment on Vercel
 Deploying **Open-Research.ai** is simple and fast with Vercel's one-click deployment option. Vercel provides a powerful and scalable environment for your project.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/justmalhar/OpenResearch&env=VITE_OPENAI_API_KEY&env=VITE_SERPER_API_KEY)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/justmalhar/OpenResearch)
 
 ## Installation Guide
 To run **Open-Research.ai** locally, follow these steps:
@@ -55,14 +55,21 @@ npm install
 npm run dev
 ```
 
-### Environment Setup
-Configure your environment variables by creating a `.env` file in the root directory:
-```env
-VITE_OPENAI_BASE_URL=your_openai_base_url # Should end with /v1
-VITE_OPENAI_API_KEY=your_openai_api_key
-VITE_OPENAI_MODEL=your_openai_model
-VITE_SERPER_API_KEY=your_serper_api_key
-```
+### API Key Setup
+This project is deployed as a pure front-end application. To use it, you need to provide your own API keys.
+
+1.  Click the "Settings" (gear icon) button in the top-right corner.
+2.  Enter your API keys:
+    *   **OpenAI API Key** (required)
+    *   **OpenAI Base URL** (optional, defaults to `https://api.openai.com/v1`)
+    *   **OpenAI Model** (optional, defaults to `gpt-4o-mini`)
+    *   **Serper API Key** (required for search functionality)
+
+**Important:** Your API keys are stored only in your browser's `localStorage` and are never sent to any server.
+
+### CORS and Security
+- **CORS:** Direct browser calls to some API providers (like OpenAI) might be blocked due to CORS policies. If you encounter issues, you may need to use a CORS-compatible gateway or a self-hosted proxy as the "Base URL".
+- **Security:** `localStorage` is not a secure storage mechanism. This approach is designed to prevent the developer's keys from being exposed, not to secure the end-user's keys.
 
 ## Development Commands
 - **`npm run dev`**: Start the development server with hot reloading.

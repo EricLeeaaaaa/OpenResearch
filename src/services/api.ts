@@ -1,17 +1,14 @@
 import { SearchSource, SearchResult } from '../types';
-
-const OPENAI_BASE_URL = import.meta.env.VITE_OPENAI_BASE_URL;
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-const OPENAI_MODEL = import.meta.env.VITE_OPENAI_MODEL;
-const SERPER_API_KEY = import.meta.env.VITE_SERPER_API_KEY;
+import { getRequiredKeysOrThrow, loadKeys } from '../lib/keyStore';
 
 export async function searchSerper(query: string, source: SearchSource): Promise<SearchResult[]> {
+  const { serperApiKey } = getRequiredKeysOrThrow(source);
+
   const endpoint = `https://google.serper.dev/${source}`;
-  
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
-      'X-API-KEY': SERPER_API_KEY,
+      'X-API-KEY': serperApiKey!,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -22,7 +19,8 @@ export async function searchSerper(query: string, source: SearchSource): Promise
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch search results');
+    const text = await response.text().catch(() => '');
+    throw new Error(`Failed to fetch search results: ${response.status} ${text}`);
   }
 
   const data = await response.json();
@@ -30,67 +28,67 @@ export async function searchSerper(query: string, source: SearchSource): Promise
 }
 
 export async function generateAIResponse(query: string, results: SearchResult[], source: SearchSource): Promise<string> {
+  const { openaiApiKey } = getRequiredKeysOrThrow(source);
+  const { openaiBaseUrl, openaiModel } = loadKeys();
+  const baseUrl = (openaiBaseUrl?.trim() || 'https://api.openai.com/v1').replace(/\/+$/, '');
+  const model = openaiModel?.trim() || 'gpt-4o-mini';
+
   const prompts = {
     search: `Create a comprehensive markdown summary with:
       ## Summary
       ### Key Findings
       ### Sources
       ### Conclusion`,
-    
     images: `Analyze the image collection and create a markdown summary with:
       ## Visual Analysis
       ### Common Themes
       ### Notable Elements
       ### Technical Details (resolution, style, etc)`,
-    
     videos: `Analyze the video collection and create a markdown summary with:
       ## Content Overview
       ### Popular Channels
       ### Duration Analysis
       ### View Count Statistics
       ### Key Topics`,
-    
     news: `Create a news analysis in markdown with:
       ## News Summary
       ### Main Story
       ### Related Developments
       ### Sources
       ### Timeline`,
-    
     shopping: `Create a product analysis in markdown with:
       ## Market Overview
       ### Price Range Analysis
       ### Popular Brands
       ### Key Features
       ### Best Value Options`,
-    
     scholar: `Create an academic summary in markdown with:
       ## Research Overview
       ### Key Findings
       ### Methodology Patterns
       ### Research Impact
       ### Future Directions`,
-    
     patents: `Create a patent analysis in markdown with:
       ## Innovation Overview
       ### Key Technologies
       ### Patent Holders
       ### Application Areas
       ### Market Impact`,
-    
     places: `Create a location analysis in markdown with:
       ## Area Overview
       ### Popular Venues
       ### Ratings Analysis
       ### Location Highlights
       ### Visitor Tips`
-  };
+  } as const;
 
   const systemPrompt = `You are an expert research assistant that creates well-formatted markdown summaries. Format with proper markdown:
     - **Bold** for emphasis
     - *Italic* for terminology
     - > Blockquotes for important quotes
-    - \`code\` for technical terms
+    - 
+code
+ for technical terms
     - Lists (- or 1.) for multiple points
     Include relevant statistics and cite sources using [text](url) format.`;
 
@@ -99,15 +97,14 @@ Follow this structure:
 
 ${prompts[source]}`;
 
-  const baseUrl = OPENAI_BASE_URL || 'https://api.openai.com/v1';
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      'Authorization': `Bearer ${openaiApiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: OPENAI_MODEL || 'gpt-4o-mini',
+      model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
@@ -118,11 +115,12 @@ ${prompts[source]}`;
   });
 
   if (!response.ok) {
-    throw new Error('Failed to generate AI response');
+    const text = await response.text().catch(() => '');
+    throw new Error(`Failed to generate AI response: ${response.status} ${text}`);
   }
 
   const data = await response.json();
-  return data.choices[0].message.content;
+  return data.choices?.[0]?.message?.content ?? '';
 }
 
 function formatResults(data: any, source: SearchSource): SearchResult[] {
@@ -133,14 +131,12 @@ function formatResults(data: any, source: SearchSource): SearchResult[] {
         link: item.link,
         snippet: item.snippet,
       })) ?? [];
-
     case 'images':
       return data.images?.map((item: any) => ({
         title: item.title,
         link: item.link,
         imageUrl: item.imageUrl,
       })) ?? [];
-
     case 'videos':
       return data.videos?.map((item: any) => ({
         title: item.title,
@@ -150,7 +146,6 @@ function formatResults(data: any, source: SearchSource): SearchResult[] {
         channel: item.channel,
         views: item.views,
       })) ?? [];
-
     case 'places':
       return data.places?.map((item: any) => ({
         title: item.title,
@@ -159,7 +154,6 @@ function formatResults(data: any, source: SearchSource): SearchResult[] {
         rating: item.rating,
         reviews: item.reviews,
       })) ?? [];
-
     case 'news':
       return data.news?.map((item: any) => ({
         title: item.title,
@@ -167,7 +161,6 @@ function formatResults(data: any, source: SearchSource): SearchResult[] {
         snippet: item.snippet,
         imageUrl: item.imageUrl,
       })) ?? [];
-
     case 'shopping':
       return data.shopping?.map((item: any) => ({
         title: item.title,
@@ -176,7 +169,6 @@ function formatResults(data: any, source: SearchSource): SearchResult[] {
         rating: item.rating,
         imageUrl: item.imageUrl,
       })) ?? [];
-
     case 'scholar':
     case 'patents':
       return data.organic?.map((item: any) => ({
@@ -187,7 +179,6 @@ function formatResults(data: any, source: SearchSource): SearchResult[] {
         year: item.year,
         publisher: item.publisher,
       })) ?? [];
-
     default:
       return [];
   }
